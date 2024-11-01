@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Competicao.Models;  // Namespace correto
 using Competicao.Data;    // Namespace correto
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Mvc.Rendering;
 
 public class CompeticaoController : Controller
 {
@@ -19,6 +20,12 @@ public class CompeticaoController : Controller
     {
         var competicoes = await _context.Competicoes.Include(c => c.Modalidade).ToListAsync();
         return View(competicoes);
+    }
+
+    public async Task<IActionResult> Gerenciamento()
+    {
+        var competicoes = await _context.Competicoes.Include(c => c.Modalidade).ToListAsync();
+        return View(competicoes); // Certifique-se de que a view "Gerenciamento" foi criada
     }
 
     // GET: Competicao/Details/5
@@ -51,7 +58,7 @@ public class CompeticaoController : Controller
     // POST: Competicao/Create
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Create([Bind("CompeticaoId,Nome,DataInicio,ModalidadeId,TipoTorneio")] Competicao competicao)
+    public async Task<IActionResult> Create([Bind("CompeticaoId,Nome,DataInicio,ModalidadeId,TipoTorneio")] Competicao.Models.Competicao competicao)
     {
         if (ModelState.IsValid)
         {
@@ -62,6 +69,7 @@ public class CompeticaoController : Controller
         ViewData["ModalidadeId"] = new SelectList(_context.Modalidades, "ModalidadeId", "Nome", competicao.ModalidadeId);
         return View(competicao);
     }
+
 
     // GET: Competicao/Edit/5
     public async Task<IActionResult> Edit(int? id)
@@ -98,7 +106,7 @@ public class CompeticaoController : Controller
     // POST: Competicao/Edit/5
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Edit(int id, [Bind("CompeticaoId,Nome,DataInicio,ModalidadeId,TipoTorneio")] Competicao competicao)
+    public async Task<IActionResult> Edit(int id, [Bind("CompeticaoId,Nome,DataInicio,ModalidadeId,TipoTorneio")] Competicao.Models.Competicao competicao)
     {
         if (id != competicao.CompeticaoId)
         {
@@ -128,6 +136,7 @@ public class CompeticaoController : Controller
         ViewData["ModalidadeId"] = new SelectList(_context.Modalidades, "ModalidadeId", "Nome", competicao.ModalidadeId);
         return View(competicao);
     }
+
 
     // GET: Competicao/Delete/5
     public async Task<IActionResult> Delete(int? id)
@@ -159,10 +168,12 @@ public class CompeticaoController : Controller
         return RedirectToAction(nameof(Index));
     }
 
-    // Método para adicionar equipes a uma competição
-    public async Task<IActionResult> AddEquipe(int competicaoId)
+    // Método GET para adicionar equipe
+    public async Task<IActionResult> AdicionarEquipe(int competicaoId)
     {
-        var competicao = await _context.Competicoes.FindAsync(competicaoId);
+        var competicao = await _context.Competicoes
+            .Include(c => c.Equipes) // Certifique-se de incluir as equipes
+            .FirstOrDefaultAsync(c => c.CompeticaoId == competicaoId);
         if (competicao == null)
         {
             return NotFound();
@@ -172,12 +183,12 @@ public class CompeticaoController : Controller
         return View(competicao);
     }
 
-    // POST: Competicao/AddEquipe
+    // POST para adicionar equipe
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> AddEquipe(int competicaoId, int equipeId)
+    public async Task<IActionResult> AdicionarEquipe(int competicaoId, int equipeId)
     {
-        var competicao = await _context.Competicoes.FindAsync(competicaoId);
+        var competicao = await _context.Competicoes.Include(c => c.Equipes).FirstOrDefaultAsync(c => c.CompeticaoId == competicaoId);
         var equipe = await _context.Equipes.FindAsync(equipeId);
 
         if (competicao == null || equipe == null)
@@ -185,9 +196,12 @@ public class CompeticaoController : Controller
             return NotFound();
         }
 
-        // Adicione a equipe à competição
-        competicao.Equipes.Add(equipe);
-        await _context.SaveChangesAsync();
+        // Verificar se a equipe já foi adicionada
+        if (!competicao.Equipes.Contains(equipe))
+        {
+            competicao.Equipes.Add(equipe);
+            await _context.SaveChangesAsync();
+        }
 
         return RedirectToAction(nameof(Details), new { id = competicaoId });
     }

@@ -17,13 +17,15 @@ public class Startup
 
     public void ConfigureServices(IServiceCollection services)
     {
-        // Configuração do DbContext com a string de conexão
+        // Conexão com o banco de dados
         services.AddDbContext<ApplicationDbContext>(options =>
             options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
 
-        // Adiciona suporte para controladores e views
+        // Outros serviços
         services.AddControllersWithViews();
     }
+
+
 
     public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
     {

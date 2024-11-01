@@ -3,6 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Competicao.Models
 {
+
     public class Equipe
     {
         [Key]

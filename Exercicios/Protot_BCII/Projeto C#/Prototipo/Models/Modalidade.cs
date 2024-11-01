@@ -1,10 +1,18 @@
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+
 namespace Competicao.Models
 {
     public class Modalidade
     {
-        public int ModalidadeId { get; set; }
-        public string Nome { get; set; }
+        [Key]
+        public int ModalidadeId { get; set; }  // ID único da modalidade
 
-        public virtual ICollection<Competicao> Competicoes { get; set; }
+        [Required]
+        [StringLength(100)]
+        public string Nome { get; set; }// Nome da modalidade
+
+        // Propriedade de navegação para competições
+        public virtual ICollection<Competicao> Competicoes { get; set; } = new List<Competicao>();
     }
 }

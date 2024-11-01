@@ -11,7 +11,7 @@ namespace Competicao.Data
         }
 
         // DbSet para as entidades
-        public DbSet<Competicao> Competicoes { get; set; }
+        public DbSet<Competicao.Models.Competicao> Competicoes { get; set; }
         public DbSet<Equipe> Equipes { get; set; }
         public DbSet<Modalidade> Modalidades { get; set; }
         // Adicione outros DbSet conforme necessário
@@ -22,7 +22,7 @@ namespace Competicao.Data
 
             // Configurações adicionais, se necessário
             // Por exemplo, se precisar definir chaves primárias ou relacionamentos
-            modelBuilder.Entity<Competicao>()
+            modelBuilder.Entity<Competicao.Models.Competicao>()
                 .HasOne(c => c.Modalidade) // Relacionamento com Modalidade
                 .WithMany() // Supondo que Modalidade não tem coleção de Competicoes
                 .HasForeignKey(c => c.ModalidadeId);

@@ -1,10 +1,18 @@
+using Competicao.Data;
+using Microsoft.EntityFrameworkCore;
+
 var builder = WebApplication.CreateBuilder(args);
 
+// Configuração do banco de dados
+builder.Services.AddDbContext<ApplicationDbContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-// Adicionar serviços ao contêiner de injeção de dependências (DI).
-builder.Services.AddControllersWithViews();  // Ativa o MVC com suporte para controllers e views.
+// Outros serviços
+builder.Services.AddControllersWithViews();
 
-var app = builder.Build();  // Constrói a aplicação usando as configurações.
+var app = builder.Build();
+
+// Configurações adicionais...
 
 // Configurar o pipeline de requisição HTTP.
 if (!app.Environment.IsDevelopment())  // Caso não esteja no ambiente de desenvolvimento
@@ -24,6 +32,7 @@ app.UseAuthorization();  // Ativa a autorização (pode ser personalizado mais t
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
+
 
 app.Run();  // Inicia o servidor web e aguarda as requisições.
 

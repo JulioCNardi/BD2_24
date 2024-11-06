@@ -1,0 +1,15 @@
+﻿@{
+    ViewData["Title"] = "Home Page";
+}
+
+<<h1>Bem-vindo ao Sistema de Competições</h1>
+
+<div>
+    <h3>Acesse as funcionalidades:</h3>
+    <div class="btn-group" role="group">
+        <a asp-controller="Competicoes" asp-action="Index" class="btn btn-primary">Gerenciar Competições</a>
+        <a asp-controller="Equipes" asp-action="Index" class="btn btn-primary">Gerenciar Equipes</a>
+        <a asp-controller="Modalidades" asp-action="Index" class="btn btn-primary">Gerenciar Modalidades</a>
+        <a asp-controller="Resultados" asp-action="Index" class="btn btn-primary">Gerenciar Resultados</a>
+    </div>
+</div>

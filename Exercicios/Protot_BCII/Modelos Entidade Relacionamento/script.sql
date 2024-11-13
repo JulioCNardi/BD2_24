@@ -1,71 +1,134 @@
+CREATE DATABASE CAMPEONATO;
 
--- DROP DATABASE `TRAB_CAMPEONATO`;
--- Criando o Schema do BD
-CREATE SCHEMA  `TRAB_CAMPEONATO`;
-USE `TRAB_CAMPEONATO`;
+USE CAMPEONATO;
+GO
 
--- 
-CREATE TABLE `ATLETA` (
-    `ATLETA_ID` INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
-    `NOME` VARCHAR(50) NOT NULL,
-    `ALTURA` FLOAT,
-    `PESO` INT
-);
+-- Cria a tabela Atletas 
+IF NOT EXISTS (SELECT * FROM sysobjects WHERE name = 'Atletas')
+BEGIN
+	CREATE TABLE [dbo].[Atletas](
+		[Atleta_Id] INT IDENTITY (1, 1) NOT NULL,
+		[Nome] NVARCHAR (200) NULL,
+		[Altura] INT NOT NULL,
+		[Peso] INT NOT NULL,
+		CONSTRAINT [PK_dbo.Atletas] PRIMARY KEY CLUSTERED ([Atleta_Id] ASC)
+	);
+END
+GO
 
-CREATE TABLE `MODALIDADE` (
-    `MODALIDADE_ID` INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
-    `NOME` VARCHAR(50) NOT NULL
-);
+-- Cria a tabela Equipes
+IF NOT EXISTS (SELECT * FROM sysobjects WHERE name = 'Equipes')
+BEGIN
+	CREATE TABLE [dbo].[Equipes](
+		[Equipe_Id] INT IDENTITY (1, 1) NOT NULL,
+		[Nome] NVARCHAR (200) NULL,
+		[Qtd_Pessoas] INT NOT NULL,
+		CONSTRAINT [PK_dbo.Equipes] PRIMARY KEY CLUSTERED ([Equipe_Id] ASC)
+	);
+END
+GO
 
-CREATE TABLE `CHAVEAMENTO` (
-    `CHAVEAMENTO_ID` INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
-    `CHAVE` ENUM('Oitavas', 'Quartas', 'Semifinais', 'Finais') NOT NULL,
-    `QTD_PONTOS` INT,
-    `TIPO` VARCHAR(50)
-);
+-- Cria a tabela Modalidades
+IF NOT EXISTS (SELECT * FROM sysobjects WHERE name = 'Modalidades')
+BEGIN
+	CREATE TABLE [dbo].[Modalidades](
+		[Modalidade_Id] INT IDENTITY (1, 1) NOT NULL,
+		[Nome] NVARCHAR (200) NULL,
+		CONSTRAINT [PK_dbo.Modalidades] PRIMARY KEY CLUSTERED ([Modalidade_Id] ASC)
+	);
+END
+GO
 
-CREATE TABLE `CLASSIFICACAO` (
-    `CLASSIFICACAO_ID` INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
-    `QTD_PONTOS` INT,
-    `CHAVEAMENTO_ID` INT,
-    CONSTRAINT `FK_CLASSIFICACAO_CHAVEAMENTO` FOREIGN KEY (`CHAVEAMENTO_ID`) REFERENCES `CHAVEAMENTO`(`CHAVEAMENTO_ID`)
-);
+-- Cria a tabela Chaveamentos
+IF NOT EXISTS (SELECT * FROM sysobjects WHERE name = 'Chaveamentos')
+BEGIN
+	CREATE TABLE [dbo].[Chaveamentos](
+		[Chaveamento_Id] INT IDENTITY (1, 1) NOT NULL,
+		[Nome] NVARCHAR (200) NULL,
+		CONSTRAINT [PK_dbo.Chaveamentos] PRIMARY KEY CLUSTERED ([Chaveamento_Id] ASC)
+	);
+END
+GO
 
-CREATE TABLE `PARTIDAS` (
-    `PARTIDA_ID` INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
-    `LOCAL` VARCHAR(50),
-    `DATA` DATETIME,
-    `CLASSIFICACAO_ID` INT,
-    CONSTRAINT `FK_PARTIDAS_CLASSIFICACAO` FOREIGN KEY (`CLASSIFICACAO_ID`) REFERENCES `CLASSIFICACAO`(`CLASSIFICACAO_ID`)
-);
+-- Cria a tabela Equipe_Atleta
+IF NOT EXISTS (SELECT * FROM sysobjects WHERE name = 'Equipe_Atleta')
+BEGIN
+    CREATE TABLE [dbo].[Equipe_Atleta] 
+    (
+        [Equipe_Atleta_Id] INT IDENTITY (1, 1) NOT NULL,
+        [Atleta_Id] INT NOT NULL,
+        CONSTRAINT [PK_dbo.Equipe_Atleta] PRIMARY KEY CLUSTERED ([Equipe_Atleta_Id] ASC),
+        CONSTRAINT [FK_dbo.Equipe_Atleta_dbo.Atleta_Atleta_Id] 
+            FOREIGN KEY ([Atleta_Id]) 
+            REFERENCES [dbo].[Atletas] ([Atleta_Id])
+            ON DELETE CASCADE
+    );
+END
+GO
 
-CREATE TABLE `EQUIPE` (
-    `EQUIPE_ID` INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
-    `NOME` VARCHAR(50) NOT NULL,
-    `QTD_PESSOAS` INT,
-    `MODALIDADE_ID` INT,
-    `ATLETA_ID` INT,
-    CONSTRAINT `FK_EQUIPE_MODALIDADE` FOREIGN KEY (`MODALIDADE_ID`) REFERENCES `MODALIDADE`(`MODALIDADE_ID`),
-    CONSTRAINT `FK_EQUIPE_ATLETA` FOREIGN KEY (`ATLETA_ID`) REFERENCES `ATLETA`(`ATLETA_ID`)
-);
+-- Cria a tabela Competicao
+IF NOT EXISTS (SELECT * FROM sysobjects WHERE name = 'Competicao')
+BEGIN
+    CREATE TABLE [dbo].[Competicao](
+        [Competicao_ID] INT IDENTITY (1, 1) NOT NULL,
+        [Data_Inicio] DATETIME NOT NULL,
+        [Data_Fim] DATETIME NOT NULL,
+        [Modalidade_ID] INT NOT NULL,
+        CONSTRAINT [PK_Competicao] PRIMARY KEY CLUSTERED ([competicao_ID] ASC),
+			CONSTRAINT [FK_Competicao_Modalidade] 
+			FOREIGN KEY ([modalidade_ID]) 
+			REFERENCES [Modalidades]([modalidade_ID]) 
+			ON DELETE CASCADE
+    );
+END
+GO
 
-CREATE TABLE `COMPETICAO` (
-    `COMPETICAO_ID` INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
-    `NOME` VARCHAR(50) NOT NULL,
-    `FASE` INT,
-    `TIPO_COMP` VARCHAR(50),
-    `EQUIPE_ID` INT,
-    `PARTIDA_ID` INT,
-    CONSTRAINT `FK_COMPETICAO_EQUIPE` FOREIGN KEY (`EQUIPE_ID`) REFERENCES `EQUIPE`(`EQUIPE_ID`),
-    CONSTRAINT `FK_COMPETICAO_PARTIDAS` FOREIGN KEY (`PARTIDA_ID`) REFERENCES `PARTIDAS`(`PARTIDA_ID`)
-);
+-- Cria a tabela Equipe_Competicao
+IF NOT EXISTS (SELECT * FROM sysobjects WHERE name = 'Equipe_Competicao')
+BEGIN
+    CREATE TABLE [dbo].[Equipe_Competicao](
+        [equipe_Competicao_ID] INT IDENTITY (1, 1) NOT NULL,
+        [pontos_Equipe_Torneio] INT NOT NULL,
+        [competicao_ID] INT NOT NULL,
+        [equipe_ID] INT NOT NULL,
+        CONSTRAINT [PK_Equipe_Competicao] PRIMARY KEY CLUSTERED ([equipe_Competicao_ID] ASC),
+        CONSTRAINT [FK_Equipe_Competicao_Competicao] 
+			FOREIGN KEY ([competicao_ID]) 
+			REFERENCES [Competicao]([competicao_ID]) 
+			ON DELETE CASCADE,
+        CONSTRAINT [FK_Equipe_Competicao_Equipe] 
+			FOREIGN KEY ([equipe_ID]) 
+			REFERENCES [Equipes]([equipe_ID]) 
+			ON DELETE CASCADE
+    );
+END
+GO
 
-CREATE TABLE `RESULTADO` (
-    `RESULTADO_ID` INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
-    `EQUIPE_ID` INT,
-    `PARTIDA_ID` INT,
-    CONSTRAINT `FK_RESULTADO_EQUIPE` FOREIGN KEY (`EQUIPE_ID`) REFERENCES `EQUIPE`(`EQUIPE_ID`),
-    CONSTRAINT `FK_RESULTADO_PARTIDAS` FOREIGN KEY (`PARTIDA_ID`) REFERENCES `PARTIDAS`(`PARTIDA_ID`)
-);
+-- Cria a tabela Partidas
+IF NOT EXISTS (SELECT * FROM sysobjects WHERE name = 'Partidas')
+BEGIN
+    CREATE TABLE [dbo].[Partidas](
+        [partida_ID] INT IDENTITY (1, 1) NOT NULL,
+        [local] VARCHAR(50) NOT NULL,
+        [pontos_Partida] INT NOT NULL,
+        [competicao_ID] INT NOT NULL,
+        [chaveamento_ID] INT NOT NULL,
+        [equipe_ID] INT NOT NULL,
+        CONSTRAINT [PK_Partidas] PRIMARY KEY CLUSTERED ([partida_ID] ASC),
+        CONSTRAINT [FK_Partidas_Competicao] 
+			FOREIGN KEY ([competicao_ID]) 
+			REFERENCES [Competicao]([competicao_ID]) 
+			ON DELETE CASCADE,
+        CONSTRAINT [FK_Partidas_Chaveamento] 
+			FOREIGN KEY ([chaveamento_ID]) 
+			REFERENCES [Chaveamentos]([chaveamento_ID]) 
+			ON DELETE CASCADE,
+        CONSTRAINT [FK_Partidas_Equipe] 
+			FOREIGN KEY ([equipe_ID]) 
+			REFERENCES [Equipes]([equipe_ID]) 
+			ON DELETE CASCADE
+    );
+END
+GO
 
 

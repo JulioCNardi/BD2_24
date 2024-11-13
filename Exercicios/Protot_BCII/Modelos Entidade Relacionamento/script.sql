@@ -9,7 +9,7 @@ BEGIN
 	CREATE TABLE [dbo].[Atletas](
 		[Atleta_Id] INT IDENTITY (1, 1) NOT NULL,
 		[Nome] NVARCHAR (200) NULL,
-		[Altura] INT NOT NULL,
+		[Altura] FLOAT NOT NULL,
 		[Peso] INT NOT NULL,
 		CONSTRAINT [PK_dbo.Atletas] PRIMARY KEY CLUSTERED ([Atleta_Id] ASC)
 	);
@@ -44,7 +44,7 @@ IF NOT EXISTS (SELECT * FROM sysobjects WHERE name = 'Chaveamentos')
 BEGIN
 	CREATE TABLE [dbo].[Chaveamentos](
 		[Chaveamento_Id] INT IDENTITY (1, 1) NOT NULL,
-		[Nome] NVARCHAR (200) NULL,
+		[Chave] NVARCHAR (200) NULL,
 		CONSTRAINT [PK_dbo.Chaveamentos] PRIMARY KEY CLUSTERED ([Chaveamento_Id] ASC)
 	);
 END
